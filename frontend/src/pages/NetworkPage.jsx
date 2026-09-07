@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { axiosInstance } from "../lib/axios";
 import Sidebar from "../components/Sidebar";
-import { UserPlus } from "lucide-react";
+import { UserPlus, Users } from "lucide-react";
 import FriendRequest from "../components/FriendRequest";
 import UserCard from "../components/UserCard";
 
@@ -19,42 +19,60 @@ const NetworkPage = () => {
   });
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-      <div className="col-span-1 lg:col-span-1">
+    <div className="flex flex-col lg:flex-row gap-5 items-start justify-center">
+      {/* Left Column: Sidebar (225px) */}
+      <aside className="w-full lg:w-[225px] flex-shrink-0 hidden lg:block">
         <Sidebar user={user} />
-      </div>
-      <div className="col-span-1 lg:col-span-3">
-        <div className="bg-secondary rounded-lg shadow p-6 mb-6">
-          <h1 className="text-2xl font-bold mb-6">My Network</h1>
+      </aside>
 
+      {/* Main Column */}
+      <main className="w-full lg:flex-1 space-y-4">
+        {/* Manage Network Header Card */}
+        <div className="bg-white rounded-lg border border-[#e0dfdc] shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_2px_4px_rgba(0,0,0,0.05)] p-4 sm:p-5">
+          <div className="flex items-center justify-between border-b border-[#e0dfdc] pb-3 mb-4">
+            <h1 className="text-base sm:text-lg font-semibold text-[rgba(0,0,0,0.9)] flex items-center gap-2">
+              <Users size={20} className="text-[#0a66c2]" />
+              <span>Manage my network</span>
+            </h1>
+            <span className="text-xs font-semibold text-[rgba(0,0,0,0.6)]">
+              {connections?.data?.length || 0} Connections
+            </span>
+          </div>
+
+          {/* Pending Invitations */}
           {connectionRequests?.data?.length > 0 ? (
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold mb-2">Connection Request</h2>
-              <div className="space-y-4">
+            <div className="mb-6">
+              <h2 className="text-sm font-semibold text-[rgba(0,0,0,0.9)] mb-3 flex items-center justify-between">
+                <span>Invitations</span>
+                <span className="text-xs text-[#0a66c2] font-normal">
+                  {connectionRequests.data.length} Pending
+                </span>
+              </h2>
+              <div className="space-y-2.5">
                 {connectionRequests.data.map((request) => (
                   <FriendRequest key={request._id || request.id} request={request} />
                 ))}
               </div>
             </div>
           ) : (
-            <div className="bg-white rounded-lg shadow p-6 text-center mb-6">
-              <UserPlus size={48} className="mx-auto text-gray-400 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">
-                No Connection Requests
+            <div className="bg-[#fcfcfc] rounded-lg border border-[#f0f0f0] p-6 text-center mb-6">
+              <UserPlus size={36} className="mx-auto text-[rgba(0,0,0,0.3)] mb-2" />
+              <h3 className="text-sm font-semibold text-[rgba(0,0,0,0.8)] mb-1">
+                No pending invitations
               </h3>
-              <p className="text-gray-600">
-                You don&apos;t have any pending connection requests at the
-                moment.
-              </p>
-              <p className="text-gray-600 mt-2">
-                Explore suggested connections below to expand your network!
+              <p className="text-xs text-[rgba(0,0,0,0.5)]">
+                When people invite you to connect, you&apos;ll see their requests right here.
               </p>
             </div>
           )}
+
+          {/* Connected Network */}
           {connections?.data?.length > 0 && (
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold mb-4">My Connections</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <h2 className="text-sm font-semibold text-[rgba(0,0,0,0.9)] mb-3">
+                People you are connected with ({connections.data.length})
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 {connections.data.map((connection) => (
                   <UserCard
                     key={connection._id}
@@ -66,8 +84,9 @@ const NetworkPage = () => {
             </div>
           )}
         </div>
-      </div>
+      </main>
     </div>
   );
 };
+
 export default NetworkPage;

@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { axiosInstance } from "../lib/axios";
 import { toast } from "react-hot-toast";
 import {
+  Bell,
+  CheckCheck,
   ExternalLink,
   Eye,
   MessageSquare,
@@ -41,14 +43,29 @@ const NotificationsPage = () => {
   const renderNotificationIcon = (type) => {
     switch (type) {
       case "like":
-        return <ThumbsUp className="text-blue-500" />;
-
+        return (
+          <div className="w-8 h-8 rounded-full bg-[#0a66c2] text-white flex items-center justify-center flex-shrink-0">
+            <ThumbsUp size={14} className="fill-white" />
+          </div>
+        );
       case "comment":
-        return <MessageSquare className="text-green-500" />;
+        return (
+          <div className="w-8 h-8 rounded-full bg-[#057642] text-white flex items-center justify-center flex-shrink-0">
+            <MessageSquare size={14} className="fill-white" />
+          </div>
+        );
       case "connectionAccepted":
-        return <UserPlus className="text-purple-500" />;
+        return (
+          <div className="w-8 h-8 rounded-full bg-[#0a66c2] text-white flex items-center justify-center flex-shrink-0">
+            <UserPlus size={14} />
+          </div>
+        );
       default:
-        return null;
+        return (
+          <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center flex-shrink-0">
+            <Bell size={14} />
+          </div>
+        );
     }
   };
 
@@ -57,31 +74,34 @@ const NotificationsPage = () => {
       case "like":
         return (
           <span>
-            <strong>{notification.relatedUser.name}</strong> liked your post
+            <strong className="text-[rgba(0,0,0,0.9)]">
+              {notification.relatedUser?.name || "Someone"}
+            </strong>{" "}
+            reacted to your post.
           </span>
         );
       case "comment":
         return (
           <span>
             <Link
-              to={`/profile/${notification.relatedUser.username}`}
-              className="font-bold"
+              to={`/profile/${notification.relatedUser?.username}`}
+              className="font-semibold text-[rgba(0,0,0,0.9)] hover:text-[#0a66c2] hover:underline"
             >
-              {notification.relatedUser.name}
+              {notification.relatedUser?.name || "Someone"}
             </Link>{" "}
-            commented on your post
+            commented on your post.
           </span>
         );
       case "connectionAccepted":
         return (
           <span>
             <Link
-              to={`/profile/${notification.relatedUser.username}`}
-              className="font-bold"
+              to={`/profile/${notification.relatedUser?.username}`}
+              className="font-semibold text-[rgba(0,0,0,0.9)] hover:text-[#0a66c2] hover:underline"
             >
-              {notification.relatedUser.name}
+              {notification.relatedUser?.name || "Someone"}
             </Link>{" "}
-            accepted your connection request
+            accepted your connection invitation.
           </span>
         );
       default:
@@ -95,112 +115,102 @@ const NotificationsPage = () => {
     return (
       <Link
         to={`/post/${relatedPost._id}`}
-        className="mt-2 p-2 bg-gray-50 rounded-md flex items-center space-x-2 hover:bg-gray-100 transition-colors"
+        className="mt-1.5 p-2 bg-[#f4f2ee] rounded border border-[#e0dfdc] flex items-center gap-2 hover:bg-[#eae8e4] transition-colors max-w-md"
       >
         {relatedPost.image && (
           <img
             src={relatedPost.image}
             alt="Post preview"
-            className="w-10 h-10 object-cover rounded"
+            className="w-8 h-8 object-cover rounded flex-shrink-0"
           />
         )}
-        <div className="flex-1 overflow-hidden">
-          <p className="text-sm text-gray-600 truncate">
-            {relatedPost.content}
-          </p>
-        </div>
-        <ExternalLink size={14} className="text-gray-400" />
+        <p className="text-xs text-[rgba(0,0,0,0.7)] truncate flex-1">
+          {relatedPost.content}
+        </p>
+        <ExternalLink size={13} className="text-[rgba(0,0,0,0.4)] flex-shrink-0" />
       </Link>
     );
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-      <div className="col-span-1 lg:col-span-1">
+    <div className="flex flex-col lg:flex-row gap-5 items-start justify-center">
+      <aside className="w-full lg:w-[225px] flex-shrink-0 hidden lg:block">
         <Sidebar user={authUser} />
-      </div>
-      <div className="col-span-1 lg:col-span-3">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h1 className="text-2xl font-bold mb-6">Notifications</h1>
+      </aside>
+
+      <main className="w-full lg:flex-1">
+        <div className="bg-white rounded-lg border border-[#e0dfdc] shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_2px_4px_rgba(0,0,0,0.05)] overflow-hidden">
+          <div className="p-4 border-b border-[#e0dfdc] flex items-center justify-between">
+            <h1 className="text-base font-semibold text-[rgba(0,0,0,0.9)]">
+              Notifications
+            </h1>
+            <span className="text-xs text-[rgba(0,0,0,0.5)]">
+              {notifications?.data?.length || 0} Total
+            </span>
+          </div>
 
           {isLoading ? (
-            <p>Loading notifications...</p>
+            <div className="p-8 text-center text-xs text-[rgba(0,0,0,0.5)] animate-pulse">
+              Loading updates...
+            </div>
           ) : notifications && notifications.data.length > 0 ? (
-            <ul>
+            <ul className="divide-y divide-[#f0f0f0]">
               {notifications.data.map((notification) => (
                 <li
                   key={notification._id}
-                  className={`bg-white border rounded-lg p-4 my-4 transition-all hover:shadow-md ${
-                    !notification.read ? "border-blue-500" : "border-gray-200"
+                  className={`p-3.5 sm:p-4 flex items-start justify-between gap-3 transition-colors ${
+                    !notification.read ? "bg-[#edf3f8]" : "hover:bg-[rgba(0,0,0,0.02)]"
                   }`}
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-4">
-                      <Link
-                        to={`/profile/${notification.relatedUser.username}`}
-                      >
-                        <img
-                          src={
-                            notification.relatedUser.profilePicture ||
-                            "/avatar.png"
-                          }
-                          alt={notification.relatedUser.name}
-                          className="w-12 h-12 rounded-full object-cover"
-                        />
-                      </Link>
+                  <div className="flex items-start gap-3 min-w-0 flex-1">
+                    {renderNotificationIcon(notification.type)}
 
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <div className="p-1 bg-gray-100 rounded-full">
-                            {renderNotificationIcon(notification.type)}
-                          </div>
-                          <p className="text-sm">
-                            {renderNotificationContent(notification)}
-                          </p>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {formatDistanceToNow(
-                            new Date(notification.createdAt),
-                            {
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs sm:text-sm text-[rgba(0,0,0,0.85)] leading-snug">
+                        {renderNotificationContent(notification)}
+                      </p>
+                      <p className="text-[11px] text-[rgba(0,0,0,0.5)] mt-1">
+                        {notification.createdAt && !isNaN(new Date(notification.createdAt))
+                          ? formatDistanceToNow(new Date(notification.createdAt), {
                               addSuffix: true,
-                            },
-                          )}
-                        </p>
-                        {renderRelatedPost(notification.relatedPost)}
-                      </div>
+                            })
+                          : "Just now"}
+                      </p>
+                      {renderRelatedPost(notification.relatedPost)}
                     </div>
+                  </div>
 
-                    <div className="flex gap-2">
-                      {!notification.read && (
-                        <button
-                          onClick={() => markAsReadMutation(notification._id)}
-                          className="p-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"
-                          aria-label="Mark as read"
-                        >
-                          <Eye size={16} />
-                        </button>
-                      )}
-
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    {!notification.read && (
                       <button
-                        onClick={() =>
-                          deleteNotificationMutation(notification._id)
-                        }
-                        className="p-1 bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors"
-                        aria-label="Delete notification"
+                        onClick={() => markAsReadMutation(notification._id)}
+                        className="p-1.5 text-[#0a66c2] hover:bg-[rgba(10,102,194,0.1)] rounded-full transition-colors"
+                        title="Mark as read"
                       >
-                        <Trash2 size={16} />
+                        <CheckCheck size={16} />
                       </button>
-                    </div>
+                    )}
+
+                    <button
+                      onClick={() => deleteNotificationMutation(notification._id)}
+                      className="p-1.5 text-[rgba(0,0,0,0.4)] hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                      title="Delete notification"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
                 </li>
               ))}
             </ul>
           ) : (
-            <p>No notification at the moment.</p>
+            <div className="p-8 text-center text-xs text-[rgba(0,0,0,0.5)]">
+              No notifications at the moment. You're all caught up!
+            </div>
           )}
         </div>
-      </div>
+      </main>
     </div>
   );
 };
+
 export default NotificationsPage;

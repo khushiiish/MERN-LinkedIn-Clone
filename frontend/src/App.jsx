@@ -10,6 +10,11 @@ import NotificationsPage from "./pages/NotificationsPage";
 import NetworkPage from "./pages/NetworkPage";
 import PostPage from "./pages/PostPage";
 import ProfilePage from "./pages/ProfilePage";
+import SettingsPage from "./pages/SettingsPage";
+import JobsPage from "./pages/JobsPage";
+import MessagingPage from "./pages/MessagingPage";
+import SearchPage from "./pages/SearchPage";
+import AboutPage from "./pages/AboutPage";
 
 function App() {
   const { data: authUser, isPending } = useQuery({
@@ -63,9 +68,36 @@ function App() {
           element={authUser ? <PostPage /> : <Navigate to="/login" />}
         />
         <Route
+          path="/profile"
+          element={
+            authUser ? (
+              <Navigate to={`/profile/${authUser.username}`} replace />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
           path="/profile/:username"
           element={authUser ? <ProfilePage /> : <Navigate to="/login" />}
         />
+        <Route
+          path="/settings"
+          element={authUser ? <SettingsPage /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/jobs"
+          element={authUser ? <JobsPage /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/messaging"
+          element={authUser ? <MessagingPage /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/search"
+          element={authUser ? <SearchPage /> : <Navigate to="/login" />}
+        />
+        <Route path="/about" element={<AboutPage />} />
       </Routes>
       <Toaster />
     </Layout>

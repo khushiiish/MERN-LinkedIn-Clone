@@ -17,6 +17,33 @@ export const getSuggestConnections = async (req, res) => {
   }
 };
 
+export const searchUsers = async (req, res) => {
+  try {
+    const { query } = req.query;
+    if (!query || !query.trim()) {
+      return res.status(200).json([]);
+    }
+
+    const searchRegex = new RegExp(query.trim(), "i");
+
+    const users = await User.find({
+      $or: [
+        { name: searchRegex },
+        { username: searchRegex },
+        { headline: searchRegex },
+        { skills: searchRegex },
+      ],
+    })
+      .select("name username profilePicture headline location connections")
+      .limit(20);
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error searching users:", error);
+    res.status(500).json({ message: "Error searching users" });
+  }
+};
+
 export const getPublicProfile = async (req, res) => {
   try {
     const user = await User.findOne({ username: req.params.username }).select(
@@ -45,6 +72,7 @@ export const updateProfile = async (req, res) => {
       "experience",
       "education",
       "username",
+      "certifications",
     ];
 
     const updatedData = {};

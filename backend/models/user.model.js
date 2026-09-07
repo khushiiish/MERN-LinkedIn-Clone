@@ -47,6 +47,15 @@ const userSchema = new mongoose.Schema(
         endDate: Number,
       },
     ],
+    certifications: [
+      {
+        title: String,
+        issuer: String,
+        issueDate: String,
+        credentialId: String,
+        link: String,
+      },
+    ],
     connections: [
       {
         type: mongoose.Schema.Types.ObjectId,
